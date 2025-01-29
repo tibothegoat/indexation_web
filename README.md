@@ -11,7 +11,5 @@ Un simple **crawler Python** qui explore les pages d'un site web en suivant les 
   
 ## Prérequis
 Le projet nécessite Python 3.x ainsi que les bibliothèques suivantes:
- - beautifulsoup4 version 4.12.2
- - urllib3 version 1.26.12
-
-
+ - beautifulsoup4 version 4.12.3
+ - urllib3 version 2.0.7
