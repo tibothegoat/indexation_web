@@ -17,7 +17,7 @@ Le projet nécessite Python 3.x ainsi que les bibliothèques suivantes:
 
 # Partie indexation
 
-Ce projet permet de générer, sauvegarder et charger des index à partir de données JSONL concernant des produits. Les index sont utilisés pour organiser et accéder rapidement à des informations sur les produits, telles que leurs titres, descriptions, avis, caractéristiques et position des termes dans les textes. Ce système d'indexation est basé sur des fichiers JSON, chacun représentant un type d'index pour les produits.
+Cette partie permet de générer, sauvegarder et charger des index à partir de données JSONL concernant des produits. Les index sont utilisés pour organiser et accéder rapidement à des informations sur les produits, telles que leurs titres, descriptions, avis, caractéristiques et position des termes dans les textes. Ce système d'indexation est basé sur des fichiers JSON, chacun représentant un type d'index pour les produits.
 
 ## Structure des Index
 
