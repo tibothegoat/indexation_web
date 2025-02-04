@@ -15,7 +15,8 @@ class Requests:
     
 
     def load_indexes(self):
-
+        """Loads each saved index from JSON files.
+        """
         for json_file in self.json_files:
             file_path = os.path.join(self.folder_path, json_file)
             name = os.path.splitext(json_file)[0]
@@ -105,8 +106,14 @@ class Requests:
     
 
     def exact_match(self, request_type):
-        """Finds exact matches for the request in the index."""
+        """Finds exact matches for the request in the index.
 
+        Args:
+            request_type (char): request type for example : 'title', 'description'
+
+        Returns:
+            list: list of pages with each term of the request for the request type selected
+        """
         if not self.verify_all_tokens(request_type):
             return []
 
@@ -127,6 +134,8 @@ class Requests:
     
     @staticmethod
     def idf(term, inverted_index, N):
+        """Calculates idf part
+        """
         df = len(inverted_index.get(term, {}))
         return math.log(1 + (N - df + 0.5) / (df + 0.5)) if df > 0 else 0
 
@@ -214,6 +223,8 @@ class Requests:
     
 
     def number_of_filtered_doc(self):
+        """Gives the number of documents and the number of filtered documents
+        """
         weights = {'title': 2.0, 'description': 1.0}
         list_doc = []
         filtered_doc = []
