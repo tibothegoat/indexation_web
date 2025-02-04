@@ -131,3 +131,43 @@ Exécute la fonction `generate_and_save_indexes('products.jsonl')` pour génére
 
 ```python
 generate_and_save_indexes('products.jsonl')
+``` 
+
+
+# Partie moteur de recherche
+
+## Description
+Cette partie implémente un moteur de recherche de produits basé sur l'algorithme BM25, combiné à des pondérations spécifiques pour améliorer la pertinence des résultats. L'objectif est de fournir une recherche efficace en tenant compte du titre, de la description et des avis des produits.
+
+## Fonctionnalités
+- **Tokenisation et suppression des stopwords** : Nettoyage des requêtes utilisateur pour une recherche plus efficace.
+- **Prise en compte des synonymes** : Expansion de la requête pour améliorer la recherche.
+- **Recherche exacte et pondérée** : Utilisation des index inversés pour retrouver les documents contenant les mots-clés.
+- **Calcul du score BM25** : Classement des produits selon la pertinence de la requête.
+- **Utilisation des avis des utilisateurs** : Intégration des notes moyennes et du nombre d'avis pour départager les produits.
+
+## Structure du Code
+- `Requests` : Classe principale qui gère le traitement des requêtes et le classement des résultats.
+- `compute_bm25_scores` : Calcul du score BM25 en fonction de la position des mots-clés dans les documents.
+- `rank_products_bm25` : Classement final en combinant les scores BM25 et les avis clients.
+- `test_requests` : Fonction permettant de tester le moteur de recherche sur un ensemble de requêtes prédéfinies.
+
+## Pondération des éléments
+Les poids utilisés dans l'algorithme permettent d'obtenir de bons résultats :
+- **Titre (poids : 2.0)** : Impact fort, car les mots-clés les plus importants sont souvent présents dans le titre du produit.
+- **Description (poids : 1.0)** : Impact moindre que le titre, mais permet d'inclure des mots-clés importants qui ne figurent pas dans le titre.
+- **Avis clients** : Utilisés pour départager les produits ayant un score similaire afin de mettre en avant les produits les mieux notés. Ce critère ne doit pas avoir un poids trop élevé sinon certains produits bien notés mais moins pertinents pourraient être mis en avant.
+
+## Fichiers d'index et de données
+- `index_json/` : Dossier contenant les index JSON des titres, descriptions et avis clients.
+- `products.jsonl` : Fichier JSONL contenant les informations des produits.
+- `request_results.json` : Résultats des recherches enregistrés après exécution de `test_requests`.
+
+## Utilisation
+1. Placer les fichiers d'index dans `index_json/`.
+2. Exécuter `test_requests()` pour générer les résultats de recherche.
+3. Consulter les résultats dans `request_results.json`.
+
+
+
+
