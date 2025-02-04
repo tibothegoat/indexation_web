@@ -27,6 +27,24 @@ class Requests:
         self.synonyms = self.indexes['origin_synonyms']
     
 
+    def parse_jsonl(self, file_path):
+        """Reads a JSONL file and returns a list of dictionaries.
+
+        Args:
+            file_path (str): Path to the JSONL file
+        
+        Returns:
+            list: A list of JSON objects
+        """
+        data = []
+        with open(file_path, 'r', encoding='utf-8') as file:
+            for line in file:
+                try:
+                    data.append(json.loads(line))
+                except json.JSONDecodeError as e:
+                    print(f"Erreur de décodage JSON sur la ligne: {line.strip()}\nErreur: {e}")
+        self.products = data
+
     @staticmethod
     def tokenize(text):
         """Tokenizes, normalizes and filters stopwords from text.
@@ -167,10 +185,11 @@ class Requests:
             index = self.indexes.get(file, {})
             bm25_scores = self.compute_bm25_scores(index)
             for url, score in bm25_scores.items():
-                scores[url] = scores.get(url, 0) + score * weight
+                if len(self.exact_match(request_type)) == 0:
+                    scores[url] = scores.get(url, 0) + score * weight
 
-                if url in self.exact_match(request_type):
-                    scores[url] += 3 
+                elif url in self.exact_match(request_type):
+                    scores[url] = scores.get(url, 0) + score * weight
         
         reviews_index = self.indexes.get('reviews_index', {})
         for url, base_score in scores.items():
@@ -180,7 +199,33 @@ class Requests:
                 last = reviews_index[url].get("last_rating", 0)
                 review_score = (mean * total_reviews + last) * math.log(1 + total_reviews) / (total_reviews + 1)
                 scores[url] += review_score
-            
-        list_ranked = [(url, base_score) for url, base_score in scores.items()]
+
+        
+        list_ranked = [[url, base_score] for url, base_score in scores.items()]        
         list_ranked.sort(key=lambda x: x[1], reverse = True)
-        return list_ranked
+
+        list_ranked_final = []
+        for i in range(len(list_ranked)):
+            for j in range(len(self.products)):
+                if self.products[j]['url'] == list_ranked[i][0]:
+                    title, description = self.products[j]['title'], self.products[j]['description']
+                    list_ranked_final.append(list_ranked[i] + [title, description])
+        return list_ranked_final
+    
+
+    def number_of_filtered_doc(self):
+        weights = {'title': 2.0, 'description': 1.0}
+        list_doc = []
+        filtered_doc = []
+
+        for request_type, weight in weights.items():
+            file = f"{request_type}_index"
+            index = self.indexes.get(file, {})
+            for token, dico_url in index.items():
+                for url in dico_url.keys():
+                    if url not in list_doc:
+                        list_doc.append(url)
+                    if url in self.exact_match(request_type) and url not in filtered_doc:
+                        filtered_doc.append(url)
+
+        return [len(list_doc),len(filtered_doc)]

@@ -2,13 +2,11 @@ import os
 import json
 from requests import Requests
 
-# Test des requêtes avec des produits spécifiques
 def test_requests():
-    # Liste des produits à tester
     product_requests = [
         "Box of Chocolate Candy",
         "Chocolate",
-        "Candy"
+        "Candy",
         "Energy Potion",
         "Potion",
         "Energy",
@@ -27,30 +25,40 @@ def test_requests():
         "Sneakers",
         "Classic Sneakers"
     ]
-    product_requests = [
-        "Box of Chocolate Candy"
-    ]
-    
-    folder_path = 'index_json/' 
+
+    folder_path = 'index_json/'
+    results_dict = {}
+
     for request in product_requests:
-        
         req = Requests(request, folder_path=folder_path)
-        
         req.load_indexes()
-
+        req.parse_jsonl("products.jsonl")
         req.tokenize_request()
-
         req.add_synonyms()
 
-        print(f"Requête: {request}")
+        number_of_documents = req.number_of_filtered_doc()[0]
+        number_of_filtered_documents = req.number_of_filtered_doc()[1]
+        ranked_products = req.rank_products_bm25()
         
-        request_types=['title', 'description']
-        for request_type in request_types:
-            results = req.exact_match(request_type)
-            print(f"  Résultats pour {request_type} index: {results}")
+        documents = [
+            {
+                "title": product[2],
+                "url": product[0],
+                "description": product[3],
+                "ranking_score": product[1]
+            } for product in ranked_products
+        ]
+        
+        results_dict[request] = {
+            "documents": documents,
+            "total_documents": number_of_documents,
+            "filtered_documents": number_of_filtered_documents
+        }
 
-        ranked_products = req.rank_products_bm25()[0:3]
-        print(f"  Produits classés par score BM25: {ranked_products}\n")
+    with open("request_results.json", "w", encoding="utf-8") as json_file:
+        json.dump(results_dict, json_file, indent=4, ensure_ascii=False)
+    
+    print("Les résultats ont été enregistrés dans request_results.json")
 
 if __name__ == "__main__":
     test_requests()
